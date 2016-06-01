@@ -8,7 +8,7 @@ the user has attached to certain transactions that wallet has made.
 This doucment describes a system for saving transaction memos so they can be shared
 between wallets. This system's working name is "memo server".
 
-# API
+# API overview
 
 The memo server reference implementation will be written in Python, and will run over the HTTPS protocol.
 Memos servers do not store financial data,
@@ -40,7 +40,7 @@ Side can be wither "input" or "output", and a value of 0 for `index` means the f
 This API call is made ever time the user makes a transaction or when they want to change the
 contents of a memo.
 
-The `crypto` argument specifies which currency the memoserver should store this memo to.
+The `crypto` argument specifies which currency the memo server should store this memo to.
 It should be a three or four letter, case insensitive string.
 
 Publishing a new memo overwrites all existing memos with the same `index` and `side`, assuming the
@@ -55,9 +55,46 @@ Notice that there is no `side` and `index` arguments. The memo server must retur
 memos attached to the txid and crypto. This is for privacy reasons: the wallet does not reveal to the memo
 server which address it controls.
 
-## example-memo-server.com/api/memo_sync?last_sync
+## example-memo-server.com/api/memo_sync?last_sync&exclude_currency&include_currency
 
 This endpoint is only called by *other* memo servers. When setting up a memo server, you can specify
 a set of other memo servers that you get memos from. On a regular schedule, your
-memo server will call all the other memo servers throught his endpoint to get all
-newly published memos since the last time
+memo server will call all the other memo servers through this endpoint to get all
+newly published memos since the last time this endpoint was called.
+
+The `exclude_currencies` and `include_currencies` are used if the owner of a memo server
+wishes to not store memos for a certain currency.
+
+The data returned will look like this:
+
+[
+    {
+        "txid": "a8756a254a87a653ecbf31a9b021f7c8028a90e6b5f3f534a7e1234ba5973001",
+        "memo": "U2FsdGVkwfIvANFXtqhOM5Y/ixfi1zF5OaCUsiGt59zxn4MX6vy5mOmvOqWT60ho4EJnv0mmU+Z1NJvoFaf9cWU=",
+        "index": 0,
+        "crypto": "BTC",
+        "side": '"output"
+    },
+    {
+        "txid": "0f8b6c669bee18ac2a407084ab52b95b5042c3c77ae8636af220a7796d98171b",
+        "memo": "wPKDbUc6G1p41j2mtYXwUzdAcFUtMBQYnL4qAsY1bgnTISxjySZwfIvANFXtqhOM5Y/ixfi1zF5OaCUsiGt59zxJnv0m=",
+        "index": 1,
+        "crypto": "LTC",
+        "side": '"input"
+    }
+    ...
+]
+
+
+# Signing and encrypting memos
+
+The memo should be encrypted by the private key of the input or output.
+A signature should also be constructed. The signature is to prove that the party
+publishing the memo is the party who owns the funds that moved in the transaction.
+
+It has not been chosen which encrypting algorithm will be used, but it is important that
+the data is encrypted correctly, as these memos represent private personal information, and will
+be transmitted publically. It recommended that the encryption schemes used for memoserver shoule be
+modeled after the encryption schemes found in bitcoin itself.
+
+Once the signature has been verified, the signature is thrown out, as it is no longer needed.
