@@ -21,9 +21,11 @@ be able to run by anyone who chooses to run a server.
 
 # Endpoints
 
-There will be three endpoints:
+Memo servers will have three principle endpoints:
 
-## example-memo-server.com/api/publish_memo?memo&signature&side&index&crypto&txid
+## Publish_memo
+
+### example-memo-server.com/api/publish_memo?memo&signature&side&index&crypto&txid
 
 After the users enters a memo to the wallet software, the wallet software encodes the
 memo, calculates a signature, and then sends that data off to the memo server
@@ -46,7 +48,9 @@ It should be a three or four letter, case insensitive string.
 Publishing a new memo overwrites all existing memos with the same `index` and `side`, assuming the
 signature is valid.
 
-## example-memo-server.com/api/get_memos?txid&crypto
+## Get memos
+
+### example-memo-server.com/api/get_memos?txid&crypto
 
 This endpoint is used at wallet import time. After the wallet determines which transactions
 make up a user's wallet, a series of API calls are to be made through this endpoint.
@@ -55,7 +59,9 @@ Notice that there is no `side` and `index` arguments. The memo server must retur
 memos attached to the txid and crypto. This is for privacy reasons: the wallet does not reveal to the memo
 server which address it controls.
 
-## example-memo-server.com/api/memo_sync?last_sync&exclude_currency&include_currency
+## Memo Sync
+
+### example-memo-server.com/api/memo_sync?last_sync&exclude_currency&include_currency
 
 This endpoint is only called by *other* memo servers. When setting up a memo server, you can specify
 a set of other memo servers that you get memos from. On a regular schedule, your
@@ -97,4 +103,12 @@ the data is encrypted correctly, as these memos represent private personal infor
 be transmitted publically. It recommended that the encryption schemes used for memoserver shoule be
 modeled after the encryption schemes found in bitcoin itself.
 
-Once the signature has been verified, the signature is thrown out, as it is no longer needed.
+Once the signature has been verified, the memo server throws it out, as it is no longer needed.
+
+# No limit on memo size
+
+There will be no defined limit on how large memos can be on the protocol level. Some
+memo server operators may choose to reject messages larger than a certain size.
+I somebody wants to publish the entire works of Shakespeare as a memo to one of their
+transactions, then they are welcome to do that, its just that some memo servers may
+reject the memo.
