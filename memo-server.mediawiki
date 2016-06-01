@@ -1,0 +1,40 @@
+# Purpose
+
+Currently, you can export your BIP-39 mnemonic from one wallet, and import
+that mnemonic into another wallet supporting the same scheme, and all th funs will
+show up. What does not show up are the extra things like memos and notes
+the user has attached to certain transactions that wallet has made.
+
+This doucment describes a system for saving transaction memos so they can be shared
+between wallets. This system's working name is "memo server".
+
+# API
+
+The memo server reference implementation will be written in Python, and will run over the HTTPS protocol.
+Memos servers do not store financial data,
+do store personal data. For this reason, the memo server does not need to
+be ran anonymously, but encrypted communication is still needed.
+
+Bitcoin's peer-to-peer network has to be anonymous to avoid money transmitter laws.
+Memo server, on the other hand, only needs to store it's contents encrypted, and
+be able to run by anyone who chooses to run a server.
+
+# Endpoints
+
+There will be three endpoints:
+
+/api/publish_memo?memo&signature&side&index&crypto&txid
+
+After the users enters a memo to the wallet software, the wallet software encodes the
+memo, calculates a signature, and then sends that data off to the memo server
+that wallet has been programmed to use.
+
+See the section below to learn how the wallet should prepare the `memo` and `signature` fields.
+
+The memo server will accept as many memos for a single transaction as there are inputs and outputs.
+This means if a transaction has 5 inputs and 3 outputs, the memo server will store as many as 8
+memos for this transaction. The reasoning behind this is that memos are specific to a user.
+The `side` and `index` arguments are for specifying which input or output this memo belongs to.
+Side can be wither "input" or "output", and a value of 0 for `index` means the first one.
+
+/api/get_memos?txid&crypto
