@@ -1,4 +1,4 @@
-# Purpose
+= Purpose =
 
 Currently, you can export your BIP-39 mnemonic from one wallet, and import
 that mnemonic into another wallet supporting the same scheme, and all th funs will
@@ -8,7 +8,7 @@ the user has attached to certain transactions that wallet has made.
 This doucment describes a system for saving transaction memos so they can be shared
 between wallets. This system's working name is "memo server".
 
-# API overview
+= API overview =
 
 The memo server reference implementation will be written in Python, and will run over the HTTPS protocol.
 Memos servers do not store financial data,
@@ -19,13 +19,13 @@ Bitcoin's peer-to-peer network has to be anonymous to avoid money transmitter la
 Memo server, on the other hand, only needs to store it's contents encrypted, and
 be able to run by anyone who chooses to run a server.
 
-# Endpoints
+= Endpoints =
 
 Memo servers will have three principle endpoints:
 
-## Publish_memo
+== Publish_memo ==
 
-### example-memo-server.com/api/publish_memo?memo&signature&side&index&crypto&txid
+=== example-memo-server.com/api/publish_memo?memo&signature&side&index&crypto&txid ===
 
 After the users enters a memo to the wallet software, the wallet software encodes the
 memo, calculates a signature, and then sends that data off to the memo server
@@ -48,9 +48,9 @@ It should be a three or four letter, case insensitive string.
 Publishing a new memo overwrites all existing memos with the same `index` and `side`, assuming the
 signature is valid.
 
-## Get memos
+== Get memos ==
 
-### example-memo-server.com/api/get_memos?txid&crypto
+=== example-memo-server.com/api/get_memos?txid&crypto ===
 
 This endpoint is used at wallet import time. After the wallet determines which transactions
 make up a user's wallet, a series of API calls are to be made through this endpoint.
@@ -59,9 +59,9 @@ Notice that there is no `side` and `index` arguments. The memo server must retur
 memos attached to the txid and crypto. This is for privacy reasons: the wallet does not reveal to the memo
 server which address it controls.
 
-## Memo Sync
+== Memo Sync ==
 
-### example-memo-server.com/api/memo_sync?last_sync&exclude_currency&include_currency
+=== example-memo-server.com/api/memo_sync?last_sync&exclude_currency&include_currency ===
 
 This endpoint is only called by *other* memo servers. When setting up a memo server, you can specify
 a set of other memo servers that you get memos from. On a regular schedule, your
@@ -73,26 +73,26 @@ wishes to not store memos for a certain currency.
 
 The data returned will look like this:
 
-[
-    {
-        "txid": "a8756a254a87a653ecbf31a9b021f7c8028a90e6b5f3f534a7e1234ba5973001",
-        "memo": "U2FsdGVkwfIvANFXtqhOM5Y/ixfi1zF5OaCUsiGt59zxn4MX6vy5mOmvOqWT60ho4EJnv0mmU+Z1NJvoFaf9cWU=",
-        "index": 0,
-        "crypto": "BTC",
-        "side": '"output"
-    },
-    {
-        "txid": "0f8b6c669bee18ac2a407084ab52b95b5042c3c77ae8636af220a7796d98171b",
-        "memo": "wPKDbUc6G1p41j2mtYXwUzdAcFUtMBQYnL4qAsY1bgnTISxjySZwfIvANFXtqhOM5Y/ixfi1zF5OaCUsiGt59zxJnv0m=",
-        "index": 1,
-        "crypto": "LTC",
-        "side": '"input"
-    }
-    ...
-]
+    [
+        {
+            "txid": "a8756a254a87a653ecbf31a9b021f7c8028a90e6b5f3f534a7e1234ba5973001",
+            "memo": "U2FsdGVkwfIvANFXtqhOM5Y/ixfi1zF5OaCUsiGt59zxn4MX6vy5mOmvOqWT60ho4EJnv0mmU+Z1NJvoFaf9cWU=",
+            "index": 0,
+            "crypto": "BTC",
+            "side": '"output"
+        },
+        {
+            "txid": "0f8b6c669bee18ac2a407084ab52b95b5042c3c77ae8636af220a7796d98171b",
+            "memo": "wPKDbUc6G1p41j2mtYXwUzdAcFUtMBQYnL4qAsY1bgnTISxjySZwfIvANFXtqhOM5Y/ixfi1zF5OaCUsiGt59zxJnv0m=",
+            "index": 1,
+            "crypto": "LTC",
+            "side": '"input"
+        }
+        ...
+    ]
 
 
-# Signing and encrypting memos
+= Signing and encrypting memos =
 
 The memo should be encrypted by the private key of the input or output.
 A signature should also be constructed. The signature is to prove that the party
@@ -105,7 +105,7 @@ modeled after the encryption schemes found in bitcoin itself.
 
 Once the signature has been verified, the memo server throws it out, as it is no longer needed.
 
-# No limit on memo size
+= No limit on memo size =
 
 There will be no defined limit on how large memos can be on the protocol level. Some
 memo server operators may choose to reject messages larger than a certain size.
