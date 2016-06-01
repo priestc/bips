@@ -23,7 +23,7 @@ be able to run by anyone who chooses to run a server.
 
 There will be three endpoints:
 
-/api/publish_memo?memo&signature&side&index&crypto&txid
+## example-memo-server.com/api/publish_memo?memo&signature&side&index&crypto&txid
 
 After the users enters a memo to the wallet software, the wallet software encodes the
 memo, calculates a signature, and then sends that data off to the memo server
@@ -37,4 +37,27 @@ memos for this transaction. The reasoning behind this is that memos are specific
 The `side` and `index` arguments are for specifying which input or output this memo belongs to.
 Side can be wither "input" or "output", and a value of 0 for `index` means the first one.
 
-/api/get_memos?txid&crypto
+This API call is made ever time the user makes a transaction or when they want to change the
+contents of a memo.
+
+The `crypto` argument specifies which currency the memoserver should store this memo to.
+It should be a three or four letter, case insensitive string.
+
+Publishing a new memo overwrites all existing memos with the same `index` and `side`, assuming the
+signature is valid.
+
+## example-memo-server.com/api/get_memos?txid&crypto
+
+This endpoint is used at wallet import time. After the wallet determines which transactions
+make up a user's wallet, a series of API calls are to be made through this endpoint.
+
+Notice that there is no `side` and `index` arguments. The memo server must return *all*
+memos attached to the txid and crypto. This is for privacy reasons: the wallet does not reveal to the memo
+server which address it controls.
+
+## example-memo-server.com/api/memo_sync?last_sync
+
+This endpoint is only called by *other* memo servers. When setting up a memo server, you can specify
+a set of other memo servers that you get memos from. On a regular schedule, your
+memo server will call all the other memo servers throught his endpoint to get all
+newly published memos since the last time
